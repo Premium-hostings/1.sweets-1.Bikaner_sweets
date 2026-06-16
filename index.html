@@ -503,7 +503,7 @@ footer{background:#1a1a1a;color:#ccc;padding:2.5rem 1.25rem 1.5rem}
     </div>
   </div>
   <div class="footer-bottom">
-    <p id="footer-text">© 2024 SweetShop. All rights reserved.</p>
+    <p id="footer-text">© 2024 SharmaSweets. All rights reserved.</p>
     <p>Made with ❤️</p>
   </div>
 </footer>
@@ -653,7 +653,7 @@ function applySettings(rows){
     document.documentElement.style.setProperty('--primary-dark',`#${r}${g}${b}`);
   }
 
-  const name=s.ShopName||'SweetShop';
+  const name=s.ShopName||'Sharma Sweets';
   document.title = name + ' – ' + (s.TagLine || 'Premium Sweets');
   document.querySelector('meta[property="og:title"]').setAttribute('content', name);
   document.getElementById('nav-logo').innerHTML=`🍬 <span>${name}</span>`;
@@ -675,7 +675,7 @@ function applySettings(rows){
 // ═══════════════════════════════════════════════════════════════
 function applySEO(rows){
   const s={};rows.forEach(r=>{if(r.Key)s[r.Key]=r.Value;});
-  const name=STATE.settings.ShopName||'SweetShop';
+  const name=STATE.settings.ShopName||'Sharma Sweets';
   document.title=s.MetaTitle||`${name} – Premium Sweets & Mithai`;
   const setMeta=(n,c)=>{if(!c)return;let m=document.querySelector(`meta[name="${n}"]`);if(!m){m=document.createElement('meta');m.name=n;document.head.appendChild(m);}m.content=c;};
   const setOG=(p,c)=>{if(!c)return;let m=document.querySelector(`meta[property="${p}"]`);if(!m){m=document.createElement('meta');m.setAttribute('property',p);document.head.appendChild(m);}m.content=c;};
