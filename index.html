@@ -654,6 +654,8 @@ function applySettings(rows){
   }
 
   const name=s.ShopName||'SweetShop';
+  document.title = name + ' – ' + (s.TagLine || 'Premium Sweets');
+  document.querySelector('meta[property="og:title"]').setAttribute('content', name);
   document.getElementById('nav-logo').innerHTML=`🍬 <span>${name}</span>`;
   document.getElementById('footer-logo').textContent='🍬 '+name;
   document.getElementById('loader-name').textContent='🍬 '+name;
