@@ -87,12 +87,15 @@ SITE_SETTINGS_URL
 const csv =
 await response.text();
 
-console.log("CSV DATA");
-console.log(csv);
+document.getElementById("status").innerHTML =
+"<pre>" +
+csv.substring(0,300) +
+"</pre>";
 
 const rows =
 parseCSV(csv);
 
+console.log(rows);
 console.log("PARSED");
 console.log(rows);
 
