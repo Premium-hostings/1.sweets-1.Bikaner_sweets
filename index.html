@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
 
@@ -8,104 +7,31 @@
 
 <title>Loading...</title>
 
-<meta name="description" content="">
-
 <script src="https://cdn.tailwindcss.com"></script>
-
-<script src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0"></script>
-
-<link
-rel="stylesheet"
-href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
-/>
-
-<style>
-
-html{
-scroll-behavior:smooth;
-}
-
-body{
-background:#f8fafc;
-}
-
-.hide{
-display:none;
-}
-
-</style>
 
 </head>
 
-<body>
+<body class="bg-slate-50">
 
-<div id="app">
-
-<header
-id="header"
-class="sticky top-0 z-50 bg-white shadow-sm">
-
-<div
-class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-
-<div>
+<div class="max-w-6xl mx-auto p-6">
 
 <h1
 id="shopName"
-class="text-2xl font-bold text-orange-600">
-
+class="text-4xl font-bold text-orange-600">
 Loading Shop...
-
 </h1>
 
 <p
 id="tagLine"
-class="text-sm text-gray-500">
-
+class="text-lg text-gray-600 mt-2">
 Loading Tagline...
-
 </p>
 
+<div
+id="status"
+class="mt-6 p-4 rounded bg-yellow-100">
+Loading settings...
 </div>
-
-<i
-class="fa-solid fa-store text-3xl text-orange-600"> </i>
-
-</div>
-
-</header>
-
-<section
-id="bannerSection">
-</section>
-
-<section
-id="heroRailSection">
-</section>
-
-<section
-id="saleRailSection">
-</section>
-
-<section
-id="productsSection">
-</section>
-
-<section
-id="gallerySection">
-</section>
-
-<section
-id="reviewsSection">
-</section>
-
-<section
-id="contactSection">
-</section>
-
-<footer
-id="footerSection">
-</footer>
 
 </div>
 
@@ -114,132 +40,28 @@ id="footerSection">
 const SPREADSHEET_ID =
 "1aULDiifd6LFPOms41yWzglTy5-lmowMDISCyFdUo36w";
 
-const SHEETS = {
-
-products:"Sheet1",
-settings:"SiteSettings",
-banner:"BannerCarousel",
-gallery:"Gallery",
-reviews:"Reviews",
-contact:"ContactInfo",
-social:"SocialLinks",
-sections:"Sections",
-seo:"SEO"
-
-};
-
-const state = {
-
-settings:{},
-products:[],
-banner:[],
-gallery:[],
-reviews:[],
-contact:[],
-social:[],
-sections:{},
-seo:{}
-
-};
-
-function getSheetURL(sheet){
-
-return `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=${sheet}`;
-
-}
+const SITE_SETTINGS_URL =
+`https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=SiteSettings`;
 
 function parseCSV(csv){
 
-const rows=[];
-let row=[];
-let current='';
-let inQuotes=false;
+const rows = csv
+.trim()
+.split("\n")
+.map(row => row.split(","));
 
-for(let i=0;i<csv.length;i++){
-
-const char=csv[i];
-const next=csv[i+1];
-
-if(char === '"'){
-
-if(inQuotes && next === '"'){
-
-current += '"';
-i++;
-
-}else{
-
-inQuotes=!inQuotes;
-
-}
-
-}else if(char===',' && !inQuotes){
-
-row.push(current);
-current='';
-
-}else if((char === '\n' || char === '\r') && !inQuotes){
-
-if(current || row.length){
-
-row.push(current);
-rows.push(row);
-
-row=[];
-current='';
-
-}
-
-}else{
-
-current+=char;
-
-}
-
-}
-
-if(current || row.length){
-
-row.push(current);
-rows.push(row);
-
-}
-
-return rows;
-
-}
-
-async function loadSheet(sheet){
-
-const response =
-await fetch(
-getSheetURL(sheet)
-);
-
-const csv =
-await response.text();
-
-const rows =
-parseCSV(csv);
-
-const headers =
-rows[0];
+const headers = rows[0];
 
 return rows
 .slice(1)
-.map(row=>{
+.map(row => {
 
-const obj={};
+const obj = {};
 
-headers.forEach(
-(header,index)=>{
+headers.forEach((header,index)=>{
 
-obj[
-header.trim()
-] =
-row[index]
-? row[index].trim()
-: '';
+obj[header.trim()] =
+(row[index] || "").trim();
 
 });
 
@@ -251,53 +73,74 @@ return obj;
 
 async function loadSettings(){
 
-const rows =
-await loadSheet(
-SHEETS.settings
+try{
+
+document.getElementById("status")
+.innerHTML =
+"Fetching SiteSettings...";
+
+const response =
+await fetch(
+SITE_SETTINGS_URL
 );
+
+const csv =
+await response.text();
+
+console.log("CSV DATA");
+console.log(csv);
+
+const rows =
+parseCSV(csv);
+
+console.log("PARSED");
+console.log(rows);
+
+const settings = {};
 
 rows.forEach(row=>{
 
-state.settings[
-row.Key
-] =
+settings[row.Key] =
 row.Value;
 
 });
 
-}
-
-async function initialize(){
-
-await loadSettings();
-
 document.title =
-state.settings.ShopName ||
+settings.ShopName ||
 "Sweet Shop";
 
 document
-.getElementById(
-"shopName"
-)
+.getElementById("shopName")
 .textContent =
-state.settings.ShopName ||
+settings.ShopName ||
 "Sweet Shop";
 
 document
-.getElementById(
-"tagLine"
-)
+.getElementById("tagLine")
 .textContent =
-state.settings.TagLine ||
+settings.TagLine ||
 "";
 
-console.log(
-"PART 1 LOADED"
-);
+document
+.getElementById("status")
+.innerHTML =
+"✅ SiteSettings Loaded Successfully";
+
+}
+catch(error){
+
+console.error(error);
+
+document
+.getElementById("status")
+.innerHTML =
+"❌ ERROR: " + error.message;
 
 }
 
-initialize();
+}
+
+loadSettings();
 
 </script>
 
