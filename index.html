@@ -1119,6 +1119,34 @@ document.getElementById('menu-toggle').addEventListener('click',()=>{
   document.getElementById('mobile-menu').classList.toggle('open');
 });
 function closeMobileMenu(){document.getElementById('mobile-menu').classList.remove('open');}
+  function buildNavLinks(){
+  const navLinks=document.getElementById('nav-links');
+  const mobileMenu=document.getElementById('mobile-menu');
+
+  const navItems=[
+    {label:'Gallery', href:'#gallery-section', section:'gallery'},
+    {label:'About',   href:'#about-section',   section:'about'},
+    {label:'Contact', href:'#contact-section',  section:'contact'},
+  ];
+
+  navItems.forEach(item=>{
+    if(!isSectionEnabled(item.section)) return;
+
+    // Desktop nav link
+    const desktopLink=document.createElement('a');
+    desktopLink.href=item.href;
+    desktopLink.textContent=item.label;
+    // Insert before the WhatsApp Order button
+    navLinks.insertBefore(desktopLink, document.getElementById('nav-wa-btn'));
+
+    // Mobile menu link
+    const mobileLink=document.createElement('a');
+    mobileLink.href=item.href;
+    mobileLink.textContent=item.label;
+    mobileLink.onclick=closeMobileMenu;
+    mobileMenu.appendChild(mobileLink);
+  });
+}
 
 // ═══════════════════════════════════════════════════════════════
 // INIT
@@ -1136,6 +1164,7 @@ async function init(){
 
     applySettings(settingsRows);
     applySections(sectionsRows);
+    buildNavLinks();
     applySEO(seoRows);
 
     // Load rest in parallel
