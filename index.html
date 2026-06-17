@@ -599,9 +599,9 @@ let STATE={
   reviewTimer:null,
   galleryItems:[],
   lbImages:[],
-  lbCurrent:0
+  lbCurrent:0,
+  visibleCount:12
 };
-
 // ═══════════════════════════════════════════════════════════════
 // HELPERS
 // ═══════════════════════════════════════════════════════════════
@@ -864,7 +864,38 @@ function buildProducts(rows){
   renderGrid();
 }
 
-function renderGrid(){
+function productCardHTML(p){
+  const disc=Number(p.DiscountPrice),orig=Number(p.OriginalPrice);
+  const hasSave=orig&&disc&&orig>disc;
+  const saving=hasSave?orig-disc:0;
+  return`<article class="product-card" id="prod-${p.ItemName.replace(/\s+/g,'-')}">
+    <div class="product-img-wrap">
+      <img src="${p.ImageURL||''}" alt="${p.ItemName}" onerror="imgFallback(this)" loading="lazy"/>
+      <div class="product-badges">
+        ${isYes(p.IsSale)?'<span class="badge-sale"><i class="fas fa-bolt"></i> Sale</span>':''}
+        ${hasSave?`<span class="badge-save">Save ₹${saving}</span>`:''}
+        ${isYes(p.IsHero)?'<span class="badge-hero">⭐ Top Pick</span>':''}
+      </div>
+    </div>
+    <div class="product-body">
+      <div class="product-category">${p.Category||''}</div>
+      <div class="product-name">${p.ItemName}</div>
+      <div class="product-desc">${p.Description||''}</div>
+      <div class="product-pricing">
+        <span class="price-discounted">₹${disc||orig}</span>
+        ${hasSave?`<span class="price-original">₹${orig}</span>`:''}
+        <span class="price-unit">/ ${p.Unit||'unit'}</span>
+      </div>
+      <a href="${waLink(p)}" target="_blank" rel="noopener" class="btn-wa" aria-label="Order ${p.ItemName} on WhatsApp">
+        <i class="fab fa-whatsapp"></i> Order on WhatsApp
+      </a>
+    </div>
+  </article>`;
+}
+
+function renderGrid(reset=true){
+  if(reset) STATE.visibleCount=12;
+
   let items=STATE.products;
   if(STATE.searchQuery){
     const res=STATE.fuse.search(STATE.searchQuery);
@@ -881,42 +912,39 @@ function renderGrid(){
   const grid=document.getElementById('product-grid');
   const empty=document.getElementById('empty-state');
 
+  // Remove old Load More button if exists
+  const oldBtn=document.getElementById('load-more-btn');
+  if(oldBtn) oldBtn.remove();
+
   if(!items.length){
     grid.innerHTML='';
     empty.style.display='block';
     return;
   }
   empty.style.display='none';
-  grid.innerHTML=items.map(p=>{
-    const disc=Number(p.DiscountPrice),orig=Number(p.OriginalPrice);
-    const hasSave=orig&&disc&&orig>disc;
-    const saving=hasSave?orig-disc:0;
-    return`<article class="product-card" id="prod-${p.ItemName.replace(/\s+/g,'-')}">
-      <div class="product-img-wrap">
-        <img src="${p.ImageURL||''}" alt="${p.ItemName}" onerror="imgFallback(this)" loading="lazy"/>
-        <div class="product-badges">
-          ${isYes(p.IsSale)?'<span class="badge-sale"><i class="fas fa-bolt"></i> Sale</span>':''}
-          ${hasSave?`<span class="badge-save">Save ₹${saving}</span>`:''}
-          ${isYes(p.IsHero)?'<span class="badge-hero">⭐ Top Pick</span>':''}
-        </div>
-      </div>
-      <div class="product-body">
-        <div class="product-category">${p.Category||''}</div>
-        <div class="product-name">${p.ItemName}</div>
-        <div class="product-desc">${p.Description||''}</div>
-        <div class="product-pricing">
-          <span class="price-discounted">₹${disc||orig}</span>
-          ${hasSave?`<span class="price-original">₹${orig}</span>`:''}
-          <span class="price-unit">/ ${p.Unit||'unit'}</span>
-        </div>
-        <a href="${waLink(p)}" target="_blank" rel="noopener" class="btn-wa" aria-label="Order ${p.ItemName} on WhatsApp">
-          <i class="fab fa-whatsapp"></i> Order on WhatsApp
-        </a>
-      </div>
-    </article>`;
-  }).join('');
+
+  // Show only visibleCount items
+  const visible=items.slice(0,STATE.visibleCount);
+  const remaining=items.length-STATE.visibleCount;
+
+  grid.innerHTML=visible.map(p=>productCardHTML(p)).join('');
+
+  // Add Load More button if more items remain
+  if(remaining>0){
+    const btn=document.createElement('div');
+    btn.id='load-more-btn';
+    btn.style.cssText='grid-column:1/-1;text-align:center;padding:1.5rem 0';
+    btn.innerHTML=`<button onclick="loadMore()" style="background:var(--primary);color:#fff;border:none;padding:.75rem 2.5rem;border-radius:50px;font-size:.95rem;font-weight:700;cursor:pointer;transition:all .2s" onmouseover="this.style.background='var(--primary-dark)'" onmouseout="this.style.background='var(--primary)'">
+      Load More (${remaining} more items) <i class="fas fa-chevron-down"></i>
+    </button>`;
+    grid.appendChild(btn);
+  }
 }
 
+function loadMore(){
+  STATE.visibleCount+=12;
+  renderGrid(false);
+}
 function scrollToProduct(name){
   document.getElementById('products-section')?.scrollIntoView({behavior:'smooth'});
 }
