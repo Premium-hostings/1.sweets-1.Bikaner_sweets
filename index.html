@@ -339,7 +339,7 @@ footer{background:#1a1a1a;color:#ccc;padding:2.5rem 1.25rem 1.5rem}
 <!-- Navbar -->
 <nav id="navbar">
   <div class="nav-inner">
-    <a href="#" class="nav-logo" id="nav-logo">🍬 <span>Sharma</span>Shop</a>
+    <a href="#" class="nav-logo" id="nav-logo">🍬 <span>Sharma Sweets</span>Shop</a>
     <div class="nav-search">
       <i class="fas fa-search"></i>
       <input type="text" id="search-input" placeholder="Search sweets, mithai…" aria-label="Search products"/>
@@ -755,7 +755,7 @@ function buildCarousel(rows){
           <div class="slide-eyebrow">🍬 Premium Sweets</div>
           <h1 class="slide-title">${b.Title||'Welcome to Our Sweet Shop'}</h1>
           <p class="slide-subtitle">${b.Subtitle||'Authentic flavours, crafted with love.'}</p>
-          <a href="#products-section" class="slide-cta">Shop Now <i class="fas fa-arrow-right"></i></a>
+          <a href="https://wa.me/${STATE.whatsapp.replace(/\D/g,'')}?text=${encodeURIComponent('Hi, I want to place an order!')}" target="_blank" rel="noopener" class="slide-cta"><i class="fab fa-whatsapp"></i> Order on WhatsApp</a>
         </div>
       </div>`;
     track.appendChild(slide);
