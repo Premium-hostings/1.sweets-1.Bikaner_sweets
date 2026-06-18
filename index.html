@@ -204,13 +204,7 @@ a{text-decoration:none;color:inherit}
 .grid-list .card-list .btn-wa-list{display:inline-flex;align-items:center;justify-content:center;background:#25d366;color:#fff;border:none;width:34px;height:34px;min-width:34px;border-radius:50%;font-size:.95rem;cursor:pointer;flex-shrink:0;transition:background .2s;text-decoration:none}
 .grid-list .card-list .btn-wa-list:hover{background:#1ebe5d}
 
-/* Laptop only — 2 columns */
-@media(min-width:1200px){
-  .grid-list{display:grid;grid-template-columns:repeat(2,1fr)}
-}
-@media(min-width:1600px){
-  .grid-list{display:grid;grid-template-columns:repeat(3,1fr)}
-}  
+/* Laptop columns handled by JS — see buildItemCard() */
   
 /* ── Skeleton ── */
 .skeleton{background:linear-gradient(90deg,#f0f0f0 25%,#e8e8e8 50%,#f0f0f0 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:8px}
@@ -1201,7 +1195,30 @@ function closeMobileMenu(){document.getElementById('mobile-menu').classList.remo
   const grid=document.getElementById('product-grid');
   grid.classList.remove('grid-compact','grid-list');
   if(style==='compact') grid.classList.add('grid-compact');
-  if(style==='list') grid.classList.add('grid-list');
+  if(style==='list'){
+    grid.classList.add('grid-list');
+    applyListColumns();
+    window.addEventListener('resize', applyListColumns);
+  }
+}
+
+function applyListColumns(){
+  const grid=document.getElementById('product-grid');
+  if(!grid.classList.contains('grid-list')) return;
+  // Use actual window.innerWidth — reliable on all devices
+  const w=window.innerWidth;
+  if(w>=1400){
+    grid.style.display='grid';
+    grid.style.gridTemplateColumns='repeat(3,1fr)';
+  } else if(w>=1024){
+    grid.style.display='grid';
+    grid.style.gridTemplateColumns='repeat(2,1fr)';
+  } else {
+    // Mobile — always single column, no exceptions
+    grid.style.display='flex';
+    grid.style.flexDirection='column';
+    grid.style.gridTemplateColumns='';
+  }
 }
 
 function buildNavLinks(){
