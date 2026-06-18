@@ -891,7 +891,8 @@ function productCardHTML(p){
   const disc=Number(p.DiscountPrice),orig=Number(p.OriginalPrice);
   const hasSave=orig&&disc&&orig>disc;
   const saving=hasSave?orig-disc:0;
-  return`<article class="product-card" id="prod-${p.ItemName.replace(/\s+/g,'-')}">
+  const cardClass=STATE.itemCardStyle==='compact'?'card-compact':STATE.itemCardStyle==='list'?'card-list':'';
+  return`<article class="product-card ${cardClass}" id="prod-${p.ItemName.replace(/\s+/g,'-')}">
     <div class="product-img-wrap">
       <img src="${p.ImageURL||''}" alt="${p.ItemName}" onerror="imgFallback(this)" loading="lazy"/>
       <div class="product-badges">
@@ -951,6 +952,10 @@ function renderGrid(reset=true){
   const remaining=items.length-STATE.visibleCount;
 
   grid.innerHTML=visible.map(p=>productCardHTML(p)).join('');
+  // Re-apply grid style class after innerHTML resets it
+  grid.classList.remove('grid-compact','grid-list');
+  if(STATE.itemCardStyle==='compact') grid.classList.add('grid-compact');
+  if(STATE.itemCardStyle==='list') grid.classList.add('grid-list');
 
   // Add Load More button if more items remain
   if(remaining>0){
@@ -1171,20 +1176,19 @@ document.getElementById('menu-toggle').addEventListener('click',()=>{
 });
 function closeMobileMenu(){document.getElementById('mobile-menu').classList.remove('open');}
   function buildItemCard(rows){
-  // Find first row where Active = yes (top of list wins)
   const active=rows.find(r=>isYes(r.Active));
-  if(!active) return; // no yes found, keep default large
+  if(!active) return;
   const style=(active.CardType||'large').toLowerCase().trim();
   if(['large','compact','list'].includes(style)){
     STATE.itemCardStyle=style;
   }
-  // Apply grid class
   const grid=document.getElementById('product-grid');
   grid.classList.remove('grid-compact','grid-list');
   if(style==='compact') grid.classList.add('grid-compact');
   if(style==='list') grid.classList.add('grid-list');
 }
-  function buildNavLinks(){
+
+function buildNavLinks(){
   const navLinks=document.getElementById('nav-links');
   const mobileMenu=document.getElementById('mobile-menu');
 
