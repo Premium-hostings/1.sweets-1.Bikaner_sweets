@@ -120,6 +120,8 @@ a{text-decoration:none;color:inherit}
 .hero-product-name{font-weight:700;font-size:.9rem;margin-bottom:.25rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .hero-product-price{color:var(--primary);font-weight:700;font-size:1rem}
 .hero-product-orig{color:var(--text-muted);font-size:.8rem;text-decoration:line-through;margin-left:.3rem}
+.hero-product-wa{display:flex;align-items:center;justify-content:center;gap:.4rem;background:#25d366;color:#fff;border:none;padding:.45rem;border-radius:8px;font-size:.78rem;font-weight:700;width:100%;margin-top:.5rem;cursor:pointer;transition:background .2s;text-decoration:none}
+.hero-product-wa:hover{background:#1ebe5d}
 
 /* ── Flash Sale Rail ── */
 #sale-section{background:linear-gradient(135deg,var(--sale-grad-start,#e91e8c),var(--sale-grad-end,#ff6b35));padding:2.5rem 1.25rem}
@@ -824,16 +826,19 @@ function buildProducts(rows){
     document.getElementById('hero-rail').style.display='block';
     const track=document.getElementById('hero-rail-track');
     track.innerHTML=heroes.map(p=>`
-      <div class="hero-product-card" onclick="scrollToProduct('${p.ItemName}')">
+      <div class="hero-product-card">
         <img src="${p.ImageURL||''}" alt="${p.ItemName}" onerror="imgFallback(this)" loading="lazy"/>
         <div class="hero-product-info">
           <div class="hero-product-name">${p.ItemName}</div>
-          <div style="display:flex;align-items:center;gap:.3rem">
+          <div style="display:flex;align-items:center;gap:.3rem;margin-bottom:.4rem">
             <span class="hero-product-price">₹${p.DiscountPrice||p.OriginalPrice}</span>
             ${p.OriginalPrice&&p.DiscountPrice&&Number(p.OriginalPrice)>Number(p.DiscountPrice)?`<span class="hero-product-orig">₹${p.OriginalPrice}</span>`:''}
           </div>
+          <a href="${waLink(p)}" target="_blank" rel="noopener" class="hero-product-wa">
+            <i class="fab fa-whatsapp"></i> Order on WhatsApp
+          </a>
         </div>
-      </div>`).join('');
+      </div>`).join('');    
   }
 
   // Sale rail
