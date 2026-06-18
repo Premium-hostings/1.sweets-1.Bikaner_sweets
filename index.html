@@ -564,44 +564,40 @@ const SHEETS = {
   ctacontrol: 'CtaControl'
 };
 
-  async function loadActiveSheetID(){
-  try{
-    // Fetch ConfigSelector tab from Parent Sheet
-    const url=`https://docs.google.com/spreadsheets/d/${PARENT_SHEET_ID}/gviz/tq?tqx=out:csv&sheet=ConfigSelector&_=${Date.now()}`;
-    const res=await fetch(url);
-    if(!res.ok) throw new Error('Parent sheet fetch failed');
-    const rows=parseCSV(await res.text());
-
-    // Find first row where Active = yes
-    const active=rows.find(r=>isYes(r.Active));
-    if(active&&active.SheetID&&active.SheetID.trim()){
-      SHEET_ID=active.SheetID.trim();
-      console.log('Loaded config sheet:',active.SheetName||SHEET_ID);
-    } else {
-      // Try ParentSettings for fallback
-      const url2=`https://docs.google.com/spreadsheets/d/${PARENT_SHEET_ID}/gviz/tq?tqx=out:csv&sheet=ParentSettings&_=${Date.now()}`;
-      const res2=await fetch(url2);
-      if(res2.ok){
-        const rows2=parseCSV(await res2.text());
-        const fb=rows2.find(r=>r.Key==='FallbackSheetID');
-        if(fb&&fb.Value) SHEET_ID=fb.Value.trim();
-      }
-    }
-  } catch(e){
-    console.warn('Parent sheet failed, using fallback:',e);
-    SHEET_ID=FALLBACK_SHEET_ID;
-  }
-}
-
-function csvUrl(sheet){
-  const bust = Date.now();
+  function csvUrl(sheet){
+  const bust=Date.now();
   return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheet)}&_=${bust}`;
 }
 
 function parentCsvUrl(sheet){
-  const bust = Date.now();
+  const bust=Date.now();
   return `https://docs.google.com/spreadsheets/d/${PARENT_SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheet)}&_=${bust}`;
 }
+
+async function loadActiveSheetID(){
+  try{
+    const url=parentCsvUrl('ConfigSelector');
+    const res=await fetch(url);
+    if(!res.ok) throw new Error('Parent sheet fetch failed');
+    const rows=parseCSV(await res.text());
+    const active=rows.find(r=>isYes(r.Active));
+    if(active&&active.SheetID&&active.SheetID.trim()){
+      SHEET_ID=active.SheetID.trim();
+      console.log('Active config sheet:',active.SheetName||SHEET_ID);
+    } else {
+      const res2=await fetch(parentCsvUrl('ParentSettings'));
+      if(res2.ok){
+        const rows2=parseCSV(await res2.text());
+        const fb=rows2.find(r=>r.Key==='FallbackSheetID');
+        if(fb&&fb.Value)SHEET_ID=fb.Value.trim();
+      }
+    }
+  }catch(e){
+    console.warn('Parent sheet failed, using fallback:',e);
+    SHEET_ID=FALLBACK_SHEET_ID;
+  }
+}
+  
 // ═══════════════════════════════════════════════════════════════
 // CSV PARSER
 // ═══════════════════════════════════════════════════════════════
